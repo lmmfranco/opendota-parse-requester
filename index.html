@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenDota Parse Requester</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js" integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.14/vue.min.js" integrity="sha512-XdUZ5nrNkVySQBnnM5vzDqHai823Spoq1W3pJoQwomQja+o4Nw0Ew1ppxo5bhF2vMug6sfibhKWcNJsG8Vj9tg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.14/vue.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+    <style>
+        table, td, th {
+            border: 1px solid black;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .parsed {
+            background-color: #dfffde;
+        }
+
+        .not-parsed {
+            background-color: #feffde;
+        }
+
+        .requested {
+            background-color: #defcff;
+        }
+        .match-section {
+            max-width: 500px;
+        }
+        .centered {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <label for="playerId">Player ID:</label>
+        <input id="playerId" type="text" v-model="playerId">
+        <br>
+        <label for="numMatches">Number of Matches:</label>
+        <input id="numMatches" type="text" v-model="numMatches">
+        <br>
+        <button type="button" @click="getMatches()" :disabled="loading">
+            <span v-if="loading">Loading...</span>
+            <span v-else-if="!loading && matches.length > 0">Reload matches</span>
+            <span v-else>Load matches</span>
+        </button>
+        <button type="button" @click="requestParse()" :disabled="matches == null || matches.length == 0 || loading">Request parse</button>
+        <span v-if="parsing">
+            Progress: {{ currentRequest }} / {{ matches.length }}
+        </span>
+        <div v-if="done">
+            <span>Done. Matches should be parsed in a few minutes. </span><br>
+            <span>
+                Check your profile:
+                <a :href="'https://www.opendota.com/players/'+playerId" target="_blank">
+                    https://www.opendota.com/players/{{playerId}}
+                </a>
+            </span>
+        </div>
+        <hr>
+        <table class="match-section">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Match ID</th>
+                    <th>Hero</th>
+                    <th>Parsed?</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(match, index) in matches" :key="match.match_id" :class="getMatchClass(match)">
+                    <td>{{ index }}</td>
+                    <td>{{ match.match_id }}</td>
+                    <td>{{ getHeroName(match.hero_id) }}</td>
+                    <td>{{ match.version != null ? 'Yes' : 'No' }}</td>
+                    <td class="centered">{{ match._status || '-'}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script src="assets/main.js"></script>
+</body>
+</html>
