@@ -1,24 +1,5 @@
 const API = "https://api.opendota.com/api";
 
-function parseMatch(matchId) {
-  return new Promise((resolve, _) => {
-    const frame = document.createElement("iframe");
-    frame.src = `https://www.opendota.com/request#${matchId}`;
-    frame.name = `match_${matchId}_frame`;
-    frame.width = "0";
-    frame.height = "0";
-    frame.style = "display: none";
-    frame.onload = () => {
-        console.log(`match ${matchId} loaded`);
-        setTimeout(() => {
-            document.body.removeChild(frame);
-            resolve();
-        }, 2000);
-    }
-    document.body.appendChild(frame);
-  });
-}
-
 const app = new Vue({
   el: '#app',
   data() {
@@ -79,11 +60,15 @@ const app = new Vue({
         } while(currentMatch.version != null);
 
         try {
-          await parseMatch(currentMatch.match_id);
+          await axios.post(`${API}/request/${currentMatch.match_id}`);
           this.$set(currentMatch, "_status", "Requested");
         } catch (error) {
-          console.log("ERROR DETAILS", error.response);
-          this.$set(currentMatch, "_status", "Error (-1)");
+          console.log("ERROR DETAILS", error);
+          if(error && error.response && error.response.status) {
+            this.$set(currentMatch, "_status", `Error (${error.response.status})`);
+          } else {
+            this.$set(currentMatch, "_status", "Error (-1)");
+          }
         }
 
       }, 1000);
