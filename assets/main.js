@@ -16,7 +16,11 @@ const app = new Vue({
     };
   },
   async created() {
-    const response = await axios.get(`${API}/heroes`);
+    const [_, queryId] = location.search.split("id=");
+    if (queryId) {
+      this.playerId = queryId;
+    }
+    const response = await axios.get(`${API}/heroes`); 
     this.heroes = response.data || [];
   },
   methods: {
@@ -90,6 +94,41 @@ const app = new Vue({
           return "not-parsed";
         }
       }
+    },
+    getMatchResult(match) {
+      if(match.leaver_status !== 0) {
+        return "Abandoned";
+      } else if(match.player_slot < 100 && match.radiant_win) {
+        return "Won";
+      } else if(match.player_slot > 100 && !match.radiant_win) {
+        return "Won";
+      } else {
+        return "Lost";
+      }
+    },
+    getMatchDate(match) {
+      return getRelativeTime(new Date(match.start_time * 1000));
     }
   }
 });
+
+var units = {
+  year  : 24 * 60 * 60 * 1000 * 365,
+  month : 24 * 60 * 60 * 1000 * 365/12,
+  day   : 24 * 60 * 60 * 1000,
+  hour  : 60 * 60 * 1000,
+  minute: 60 * 1000,
+  second: 1000
+}
+
+var rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+
+// From: https://stackoverflow.com/a/53800501/2346767
+function getRelativeTime(d1, d2 = new Date()) {
+  var elapsed = d1 - d2;
+  for (var u in units) {
+    if (Math.abs(elapsed) > units[u] || u == 'second') {
+      return rtf.format(Math.round(elapsed/units[u]), u)
+    }
+  }
+}

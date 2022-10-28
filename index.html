@@ -9,6 +9,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.14/vue.min.js" integrity="sha512-XdUZ5nrNkVySQBnnM5vzDqHai823Spoq1W3pJoQwomQja+o4Nw0Ew1ppxo5bhF2vMug6sfibhKWcNJsG8Vj9tg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.14/vue.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
     <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
         table, td, th {
             border: 1px solid black;
         }
@@ -30,7 +34,7 @@
             background-color: #defcff;
         }
         .match-section {
-            max-width: 500px;
+            max-width: 600px;
         }
         .centered {
             text-align: center;
@@ -70,6 +74,8 @@
                     <th>#</th>
                     <th>Match ID</th>
                     <th>Hero</th>
+                    <th>Result</th>
+                    <th>Date</th>
                     <th>Parsed?</th>
                     <th>Status</th>
                 </tr>
@@ -79,6 +85,8 @@
                     <td>{{ index }}</td>
                     <td>{{ match.match_id }}</td>
                     <td>{{ getHeroName(match.hero_id) }}</td>
+                    <td>{{ getMatchResult(match) }}</td>
+                    <td>{{ getMatchDate(match) }}</td>
                     <td>{{ match.version != null ? 'Yes' : 'No' }}</td>
                     <td class="centered">{{ match._status || '-'}}</td>
                 </tr>
